@@ -1,0 +1,9 @@
+[project]
+name = "columns-ec2"
+version = "0.9.0rc22"
+description = "Reinforced concrete column analysis and design tool for EC2 workflows"
+requires-python = ">=3.9"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["columns_ec2*"]

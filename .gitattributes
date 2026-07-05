@@ -1,0 +1,7 @@
+* text=auto eol=lf
+
+tests/data/*.csv binary
+*.xlsx binary
+*.pdf binary
+*.dxf text eol=crlf
+*.zip binary

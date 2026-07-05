@@ -1,0 +1,6 @@
+pandas>=2.0
+openpyxl>=3.1
+reportlab>=4.0
+numpy>=1.24
+shapely>=2.0
+structuralcodes>=0.7.0
