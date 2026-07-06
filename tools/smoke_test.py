@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Non-GUI smoke test for ColumnsEC2 RC26.
+"""Non-GUI smoke test for ColumnsEC2 0.1.
 
 Run from the project root:
     python tools/smoke_test.py
@@ -32,7 +32,7 @@ def main() -> None:
     res = design_dataframe(prepared, DesignParameters(calc_mode="pre_dimensionamento", reduce_cases=False))
     assert len(res) == 1
     assert "status" in res.columns
-    print("ColumnsEC2 RC26 smoke test: OK")
+    print("ColumnsEC2 0.1 smoke test: OK")
 
 
 if __name__ == "__main__":
