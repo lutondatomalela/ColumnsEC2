@@ -119,7 +119,7 @@ python -m pip install -r requirements.txt
 Optional external calculation libraries:
 
 ```bash
-python -m pip install --upgrade structuralcodes shapely numpy
+python -m pip install -r requirements-optional.txt
 ```
 
 ---
