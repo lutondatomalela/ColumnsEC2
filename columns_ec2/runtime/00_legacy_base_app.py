@@ -27,7 +27,7 @@ from tkinter import filedialog, messagebox, ttk
 
 APP_TITLE = "ColumnsEC2 - Dimensionamento de Pilares (EC2)"
 APP_NAME = "ColumnsEC2"
-APP_VERSION = "v5.3"
+APP_VERSION = "v0.1"
 APP_AUTHOR = "Eng.º Lutonda Tomalela"
 APP_SUBJECT = "Dimensionamento e verificação de pilares de betão armado segundo o Eurocódigo 2"
 APP_KEYWORDS = "ColumnsEC2, Eurocódigo 2, EC2, NP EN 1992-1-1, pilares, betão armado, armaduras, segunda ordem, flexão composta, interação biaxial"
