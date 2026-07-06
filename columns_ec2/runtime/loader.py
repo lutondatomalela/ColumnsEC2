@@ -44,8 +44,8 @@ def load_runtime(force_reload: bool = False) -> Dict[str, Any]:
         ns["__file__"] = str(module_path)
         exec(code, ns)
     ns["__file__"] = str(runtime_dir / "loader.py")
-    # Modular release identifier; calculation code remains RC8-compatible.
-    ns["APP_VERSION"] = "v0.9 RC26 Modular"
+    # Modular release identifier;
+    ns["APP_VERSION"] = "v0.1"
     _RUNTIME_CACHE = ns
     return ns
 
