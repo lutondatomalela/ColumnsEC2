@@ -223,7 +223,7 @@ python tools/smoke_test.py
 Expected result:
 
 ```text
-ColumnsEC2 smoke test: OK
+ColumnsEC2 v0.1 smoke test: OK
 ```
 
 ---
@@ -249,7 +249,7 @@ results.to_excel("column_results.xlsx", index=False)
 
 ## Development status
 
-ColumnsEC2 is currently in release-candidate development.
+ColumnsEC2 is currently in early validated development.
 
 Recent development areas include:
 
@@ -262,7 +262,7 @@ Recent development areas include:
 - stable Excel, PDF and DXF export routines;
 - optional external backend support through `structuralcodes`.
 
-See [`CHANGELOG.md`](CHANGELOG.md) for release-candidate history.
+See [`CHANGELOG.md`](CHANGELOG.md) for development history.
 
 ---
 
