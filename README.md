@@ -4,7 +4,7 @@
 
 The software imports column internal forces, preserves physical column segments, checks combined axial force and biaxial bending, proposes practical reinforcement arrangements, and exports calculation outputs to Excel, PDF and DXF formats.
 
-> Current development status: **v0.9 RC26 Modular**  
+> Current development status: **v0.1**  
 > ColumnsEC2 is under active validation and should be used with independent engineering review.
 
 ---
