@@ -1,66 +1,82 @@
 # ColumnsEC2
 
-**ColumnsEC2** is a Python tool for the analysis and design of reinforced-concrete columns according to **Eurocode 2 / NP EN 1992-1-1**.
+**ColumnsEC2** is a Python-based tool for the analysis and design of reinforced-concrete columns in accordance with **Eurocode 2** workflows, with particular focus on **EN 1992-1-1 / NP EN 1992-1-1** applications.
 
-The program imports column internal forces, performs reinforced-concrete checks under combined axial force and biaxial bending, proposes practical reinforcement arrangements, and exports calculation reports in Excel, PDF, and DXF formats.
+The software imports column internal forces, preserves physical column segments, checks combined axial force and biaxial bending, proposes practical reinforcement arrangements, and exports calculation outputs to Excel, PDF and DXF formats.
 
 > Current development status: **v0.9 RC26 Modular**  
-> The software is under active validation and should be used with engineering review.
+> ColumnsEC2 is under active validation and should be used with independent engineering review.
 
 ---
 
 ## Main features
 
-- Import of column force tables from Excel or CSV.
-- Robust CSV reader for UTF-16, UTF-8, semicolon-separated and comma-separated files.
-- Extraction of `member`, `node`, and `case` from force-table identifiers such as `Barra/Nó/Caso`.
-- Verification of physical column segments by:
-  - member;
-  - column line;
-  - storey;
-  - section;
-  - material.
-- N-My-Mz interaction check for reinforced-concrete columns.
-- Reinforcement proposal using practical bar arrangements.
-- Stack-level reinforcement rationalisation by column line.
-- Support for rectangular and circular sections.
-- Serviceability check using a selected SLS combination when available.
-- Shear and torsion diagnostic checks.
-- Optional use of the `structuralcodes` Python library for selected Eurocode/material calculation utilities and cross-check workflows.
-- Export to:
-  - `.xlsx` calculation workbook;
-  - `.pdf` calculation report;
-  - `.dxf` column reinforcement schedule.
+- Import of column force tables from Excel and CSV files.
+- Robust CSV handling for UTF-8, UTF-16, BOM-marked files, semicolon-separated tables and decimal-comma formats.
+- Extraction of `member`, `node` and `case` from identifiers such as `Barra/Nó/Caso`.
+- Preservation of physical column segments by member, column line, storey, section and material.
+- Design and verification of reinforced-concrete columns under combined `N-My-Mz` effects.
+- Practical reinforcement proposal for rectangular and circular sections.
+- Reinforcement rationalisation by column stack, after local segment verification.
+- Serviceability, shear, torsion and detailing diagnostic checks.
+- Export of calculation results to:
+  - Excel workbook;
+  - PDF calculation report;
+  - DXF column reinforcement schedule.
+- Optional integration with the `structuralcodes` library for selected external calculation backends and cross-check routines.
 
 ---
 
 ## Intended use
 
-ColumnsEC2 is intended for preliminary and detailed checking workflows in building-column design, especially when internal forces are exported from structural analysis software.
+ColumnsEC2 is intended to support reinforced-concrete column design workflows in structural engineering offices, particularly where internal forces are exported from structural analysis software.
 
-The tool is particularly focused on:
+The tool is focused on:
 
-- preserving all physical column segments;
-- avoiding premature grouping by column name only;
-- selecting governing combinations per physical segment;
-- rationalising reinforcement along the same column stack;
-- avoiding impractical automatic reinforcement layouts.
+- maintaining the traceability of simultaneous design actions;
+- avoiding premature grouping of different physical column segments;
+- selecting governing design cases per segment;
+- proposing constructible reinforcement arrangements;
+- rationalising reinforcement by column line without losing local design requirements;
+- producing clear calculation records for engineering review.
 
 ---
 
 ## Engineering basis
 
-The main design workflow is based on:
+The core workflow is based on reinforced-concrete column design principles from Eurocode 2, with emphasis on:
 
-- Eurocode 2: EN 1992-1-1;
-- Portuguese National Annex where applicable;
-- reinforced-concrete column checks under axial force and biaxial bending;
-- practical reinforcement detailing limits;
-- selected calculation utilities from the open-source `structuralcodes` Python library, where available in the active backend.
+- axial force and biaxial bending interaction;
+- material design strengths;
+- reinforcement limits;
+- practical detailing constraints;
+- segment-by-segment design verification;
+- column-stack reinforcement rationalisation.
 
-The internal EC2 routines remain the primary workflow for ColumnsEC2. `structuralcodes` is used as an optional support/cross-check dependency in specific calculation paths and should not be interpreted as replacing project-specific engineering validation.
+The main reference framework is **EN 1992-1-1 / NP EN 1992-1-1**, including the Portuguese National Annex where applicable.
 
-The program does not replace engineering judgement. Final design decisions, detailing, anchorage, lap lengths, execution constraints, and project-specific assumptions must be reviewed by a qualified structural engineer.
+The software does not replace the judgement of the responsible structural engineer. Final design assumptions, second-order effects, effective lengths, detailing, laps, anchorage, seismic requirements, fire design and execution constraints must be reviewed independently.
+
+---
+
+## External calculation libraries
+
+ColumnsEC2 also uses, or can interface with, the open-source **`structuralcodes`** Python library for selected calculation support and comparison workflows.
+
+Depending on the active backend and runtime configuration, `structuralcodes` may be used for auxiliary checks, alternative code-format calculations or cross-checking routines, for example related to:
+
+- Eurocode 2 calculation expressions;
+- alternative EC2-generation backends exposed by the software;
+- fib Model Code 2010 comparison workflows, where available;
+- independent verification of selected material or section-related calculations.
+
+The internal ColumnsEC2 workflow remains the main calculation route for the standard Portuguese EC2 column-design process unless another supported backend is explicitly selected.
+
+To install the optional external calculation dependencies:
+
+```bash
+python -m pip install --upgrade structuralcodes shapely numpy
+```
 
 ---
 
@@ -73,11 +89,13 @@ git clone https://github.com/lutondatomalela/ColumnsEC2.git
 cd ColumnsEC2
 ```
 
-Create and activate a Python environment:
+Create a Python virtual environment:
 
 ```bash
 python -m venv .venv
 ```
+
+Activate the environment.
 
 On Windows:
 
@@ -85,41 +103,26 @@ On Windows:
 .venv\Scripts\activate
 ```
 
-On Linux/macOS:
+On macOS or Linux:
 
 ```bash
 source .venv/bin/activate
 ```
 
-Install dependencies:
+Install the project dependencies:
 
 ```bash
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 ```
 
-Optional `structuralcodes` support:
+Optional external calculation libraries:
 
 ```bash
 python -m pip install --upgrade structuralcodes shapely numpy
 ```
 
-`structuralcodes` is optional but recommended when using the alternative/checking backends that rely on it.
-
 ---
-
-## External calculation libraries
-
-ColumnsEC2 includes its own calculation workflow for EC2 column design, but it can also use the open-source `structuralcodes` Python library in selected backend/cross-check routines.
-
-This is useful for:
-
-- comparing material-property calculations;
-- checking selected Eurocode expressions;
-- supporting alternative backend experiments;
-- keeping parts of the calculation workflow aligned with an external open-source engineering library.
-
-Results obtained through any backend must still be reviewed by a qualified structural engineer.
 
 ## Running the application
 
@@ -135,7 +138,7 @@ or:
 python ColumnsEC2.py
 ```
 
-or as a module:
+or as a Python module:
 
 ```bash
 python -m columns_ec2
@@ -145,21 +148,19 @@ python -m columns_ec2
 
 ## Input data
 
-The program accepts Excel and CSV force tables.
-
-A typical CSV input may include a column such as:
+ColumnsEC2 accepts Excel and CSV force tables. A typical imported table may include an identifier column such as:
 
 ```text
 Barra/Nó/Caso
 ```
 
-with values like:
+with values such as:
 
 ```text
 119/ 24/ 101 (C)
 ```
 
-which are parsed as:
+which are interpreted as:
 
 ```text
 member = 119
@@ -167,48 +168,34 @@ node   = 24
 case   = 101
 ```
 
-The expected force-table workflow preserves simultaneous action effects from the same member, node and load case. The program should not combine independent envelopes of `N`, `My`, and `Mz` from different cases.
+The design workflow should preserve simultaneous action effects from the same member, node and load case. Independent envelopes of axial force and bending moments should not be combined as if they were simultaneous.
 
----
-
-## Reference validation dataset
-
-The current validation dataset used during RC23-RC26 development is:
+For physical segment identification, the recommended grouping basis is:
 
 ```text
-tests/data/ESFORCOS_PILARES.csv
+member + column line + storey + section + material
 ```
 
-Expected import result:
-
-```text
-Input rows:              16 388
-Member/case pairs:        8 194
-Physical column segments:   241
-Column lines:                 84
-SLS combination 302: detected
-```
-
-Any future change to the import, case-reduction or design pipeline should preserve these values unless the input dataset changes.
+Grouping by column name only is not sufficient, because it may collapse different storeys, members or section changes into a single design result.
 
 ---
 
 ## Calculation workflow
 
-The intended design pipeline is:
+The intended calculation sequence is:
 
 ```text
-1. Read Excel/CSV force table.
-2. Parse member, node and case.
+1. Read Excel or CSV force table.
+2. Parse member, node and load case.
 3. Preserve all physical column segments.
-4. Select governing cases per physical segment.
-5. Design/check each segment locally.
+4. Select governing design cases per physical segment.
+5. Design or check each segment locally.
 6. Apply reinforcement rationalisation by column line.
 7. Separate local required reinforcement from adopted stack reinforcement.
-8. Export Excel, PDF and DXF reports.
+8. Export Excel, PDF and DXF outputs.
 ```
 
-Grouping only by column name before local design is not acceptable, because it may collapse different storeys or physical members into a single result.
+The RC26 workflow keeps a fast design path for ordinary cases and activates a more rigorous reinforcement search only when the fast automatic search fails.
 
 ---
 
@@ -219,9 +206,9 @@ ColumnsEC2 can generate:
 - detailed Excel calculation workbook;
 - PDF calculation report;
 - DXF column reinforcement schedule;
-- diagnostic tables for governing combinations, failures, warnings, serviceability and detailing.
+- diagnostic tables for governing combinations, failures, warnings, serviceability and detailing checks.
 
-The DXF export is intended to include all column lines, using paginated schedule blocks when required.
+The DXF export is intended to include all column lines in the project. When required, the schedule should be organised in multiple blocks or pages rather than omitting columns.
 
 ---
 
@@ -255,19 +242,8 @@ params = DesignParameters(
 )
 
 results = design_dataframe(input_table, params)
-
 results.to_excel("column_results.xlsx", index=False)
 ```
-
----
-
-## Performance notes
-
-For large models, the program reduces the force table to governing design cases per physical column segment.
-
-The RC26 workflow keeps the fast search mode for ordinary cases and activates a rigorous fallback search only when the fast reinforcement search fails.
-
-For additional conservative checks, the number of governing cases per physical segment may be increased through the relevant runtime setting.
 
 ---
 
@@ -275,58 +251,71 @@ For additional conservative checks, the number of governing cases per physical s
 
 ColumnsEC2 is currently in release-candidate development.
 
-Recent focus areas:
+Recent development areas include:
 
-- robust CSV import;
-- UTF-16 and BOM handling;
-- preservation of all physical column segments;
-- ELS combination detection;
-- faster governing-case reduction;
-- practical reinforcement layouts;
-- stack-level reinforcement rationalisation;
-- stable Excel/PDF/DXF exports.
+- robust CSV import and encoding detection;
+- preservation of physical column segments;
+- governing-case reduction for large force tables;
+- serviceability-combination detection;
+- practical automatic reinforcement layouts;
+- column-stack reinforcement rationalisation;
+- stable Excel, PDF and DXF export routines;
+- optional external backend support through `structuralcodes`.
 
-Known validation target for RC26:
+See [`CHANGELOG.md`](CHANGELOG.md) for release-candidate history.
+
+---
+
+## Recommended repository structure
 
 ```text
-241 physical column segments preserved
-84 column lines exported to DXF
-SLS case 302 detected and evaluated
-No artificial failures with empty As or empty utilisation ratio
-No "nan" or "None" text in final reports
+ColumnsEC2/
+├── columns_ec2/
+├── tools/
+├── tests/
+│   └── data/
+│       └── sample_columns_forces.csv
+├── docs/
+│   ├── input_format.md
+│   ├── validation.md
+│   └── examples.md
+├── README.md
+├── LICENSE
+├── CHANGELOG.md
+├── CONTRIBUTING.md
+├── requirements.txt
+└── .gitignore
 ```
+
+Development handoff files, temporary calculation reports, exported Excel/PDF/DXF files and project-specific datasets should not be committed to the public repository.
 
 ---
 
 ## Limitations
 
-The current version should be treated as an engineering-assistance tool, not as an autonomous design authority.
+ColumnsEC2 should be treated as an engineering-assistance tool, not as an autonomous design authority.
 
-The following items require engineering review:
+The following items require project-specific engineering review:
 
-- second-order effects assumptions;
+- design assumptions and load combinations;
+- second-order effects;
 - effective lengths;
-- sway/non-sway classification;
+- sway or non-sway classification;
+- minimum eccentricities;
+- creep and long-term effects;
 - reinforcement anchorage and lap lengths;
-- seismic detailing requirements, where applicable;
+- seismic detailing requirements;
 - fire design;
-- local discontinuities;
-- construction-stage effects;
-- final reinforcement detailing.
+- local discontinuities and construction-stage effects;
+- final reinforcement drawings and execution details.
 
 ---
 
 ## Disclaimer
 
-This software is provided for structural engineering calculation assistance and research/development purposes.
+This software is provided for structural engineering calculation assistance, research and development purposes.
 
-The author accepts no responsibility for direct or indirect consequences resulting from the use of the software. All results must be independently reviewed and validated by a qualified structural engineer before being used in design, construction documentation, checking, or approval processes.
-
----
-
-## License
-
-This project is licensed under the MIT License. See the [`LICENSE`](LICENSE) file for details.
+The author accepts no responsibility for direct or indirect consequences resulting from the use of the software. All results must be independently reviewed and validated by a qualified structural engineer before being used for design, construction documentation, checking, approval or execution.
 
 ---
 
@@ -334,8 +323,4 @@ This project is licensed under the MIT License. See the [`LICENSE`](LICENSE) fil
 
 Developed by **Eng.º Lutonda Tomalela**.
 
-Repository:
-
-```text
-https://github.com/lutondatomalela/ColumnsEC2
-```
+Repository: <https://github.com/lutondatomalela/ColumnsEC2>

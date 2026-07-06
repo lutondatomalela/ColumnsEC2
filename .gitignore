@@ -1,20 +1,62 @@
+# Python cache / bytecode
 __pycache__/
 *.py[cod]
-*$py.class
+*.pyo
+*.pyd
+.Python
 
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Build / distribution
+build/
+dist/
+*.egg-info/
+*.spec
+
+# Test / tooling cache
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
 .coverage
 htmlcov/
 
-.venv/
-venv/
-env/
-
-testes_saida_rc26/
+# Generated calculation outputs
+outputs/
 exports/
+reports/
+*.xlsx
+*.xlsm
+*.pdf
+*.dxf
+*.tmp
 *.log
 
+# Archives / handoff packages
+*.zip
+HANDOFF_*.md
+*_handoff*
+dev_notes/
+docs/dev_notes/
+docs/tmp/
+
+# Private or project-specific validation data
+tests/data/private/
+ESFORCOS_PILARES.csv
+
+# Keep intentional public sample data
+!tests/data/sample_*.csv
+!tests/data/sample_*.xlsx
+
+# IDE / editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Operating system files
 .DS_Store
 Thumbs.db
