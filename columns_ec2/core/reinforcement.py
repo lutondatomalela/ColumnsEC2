@@ -6,6 +6,6 @@ from .materials import bar_area_mm2
 from columns_ec2.runtime.loader import runtime_object
 
 # The Layout dataclass and ColumnDesigner are still loaded from the validated
-# runtime in RC11. They will be moved here after numerical regression testing.
+# runtime sequence. They will be moved here after numerical regression testing.
 Layout = runtime_object("Layout")
 ColumnDesigner = runtime_object("ColumnDesigner")
