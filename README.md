@@ -157,7 +157,7 @@ Barra/Nó/Caso
 with values such as:
 
 ```text
-119/ 24/ 101 (C)
+119/ 24/ 507 (C)
 ```
 
 which are interpreted as:
@@ -165,7 +165,7 @@ which are interpreted as:
 ```text
 member = 119
 node   = 24
-case   = 101
+case   = 507
 ```
 
 The design workflow should preserve simultaneous action effects from the same member, node and load case. Independent envelopes of axial force and bending moments should not be combined as if they were simultaneous.
@@ -185,7 +185,7 @@ Grouping by column name only is not sufficient, because it may collapse differen
 The intended calculation sequence is:
 
 ```text
-1. Read Excel or CSV force table.
+1. Import force tables from Excel files, CSV files, or directly from the clipboard.
 2. Parse member, node and load case.
 3. Preserve all physical column segments.
 4. Select governing design cases per physical segment.
@@ -195,7 +195,7 @@ The intended calculation sequence is:
 8. Export Excel, PDF and DXF outputs.
 ```
 
-The RC26 workflow keeps a fast design path for ordinary cases and activates a more rigorous reinforcement search only when the fast automatic search fails.
+The workflow keeps a fast design path for ordinary cases and activates a more rigorous reinforcement search only when the fast automatic search fails.
 
 ---
 
@@ -263,31 +263,6 @@ Recent development areas include:
 - optional external backend support through `structuralcodes`.
 
 See [`CHANGELOG.md`](CHANGELOG.md) for release-candidate history.
-
----
-
-## Recommended repository structure
-
-```text
-ColumnsEC2/
-├── columns_ec2/
-├── tools/
-├── tests/
-│   └── data/
-│       └── sample_columns_forces.csv
-├── docs/
-│   ├── input_format.md
-│   ├── validation.md
-│   └── examples.md
-├── README.md
-├── LICENSE
-├── CHANGELOG.md
-├── CONTRIBUTING.md
-├── requirements.txt
-└── .gitignore
-```
-
-Development handoff files, temporary calculation reports, exported Excel/PDF/DXF files and project-specific datasets should not be committed to the public repository.
 
 ---
 
