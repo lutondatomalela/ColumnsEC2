@@ -2,11 +2,11 @@
 
 All notable development changes to ColumnsEC2 are summarised in this file.
 
-The project is currently in release-candidate development. Numerical and detailing changes should be validated against controlled input files before being used in production workflows.
+The project is currently in early validated development. Numerical and detailing changes should be validated against controlled input files before being used in production workflows.
 
 ---
 
-## v0.9 RC26
+## v0.1 
 
 - Added rigorous reinforcement-search fallback when the fast automatic design mode fails.
 - Reduced false `N-My-Mz` failures caused by limited fast-mode reinforcement catalogues.
