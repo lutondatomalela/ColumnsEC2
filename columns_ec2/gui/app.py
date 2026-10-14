@@ -17,6 +17,11 @@ def get_app_class():
 def create_app():
     app_cls = get_app_class()
     app = app_cls()
+    import sys
+    from pathlib import Path
+    icon_path = Path(__file__).resolve().parent / 'ColumnsEC2.ico'
+    if sys.platform == 'win32' and icon_path.is_file():
+        app.iconbitmap(str(icon_path))
     hook = runtime_object("_v092_apply_language_title")
     try:
         hook(app)
