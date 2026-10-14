@@ -200,8 +200,7 @@ except Exception:
 
 def _rc25_pdf_safe(x) -> str:
     s = _rc25_clean_text(x, dash_for_empty=False)
-    # Built-in PDF fonts may render Ø as a plain zero in some viewers.
-    # Use explicit engineering text in the PDF; XLSX/DXF keep the original symbol.
+    # Keep the diameter symbol; use an ASCII name for eta in Courier.
     s = s.replace("η", "eta")
     return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
@@ -216,7 +215,10 @@ def _rc25_pdf_table(df: pd.DataFrame, cols, style, table_style, max_rows=35, wid
         present = ["nota"]
         df = pd.DataFrame([{"nota": "Sem dados."}])
     labels = {"member": "Barra", "case": "Combinação", "material": "Betão", "name": "Prumada", "story": "Piso", "estado_corte": "Corte", "estado_torcao": "Torção", "estado_els": "ELS", "decisao_tecnica": "Decisão técnica", "failure_warnings": "Avisos técnicos", "detailing_warnings": "Pormenorização", "service_status": "ELS", "utilizacao": "eta NMyMz"}
-    data = [[Paragraph(_rc25_pdf_safe(labels.get(c, c)), style) for c in present]]
+    labels.update({"n_ed_kN": "NEd [kN]", "my_ed_kNm": "My,Ed [kNm]", "mz_ed_kNm": "Mz,Ed [kNm]", "as_req_mm2": "As,req [mm²]", "as_prov_mm2": "As,prov [mm²]", "lambda_y": "Esbelteza y [-]", "lambda_z": "Esbelteza z [-]", "second_order_y": "2.ª ordem y", "second_order_z": "2.ª ordem z", "service_combination": "Combinação ELS", "status": "Estado", "η_NMyMz": "Utilização [-]", "b_cm": "b [cm]", "h_cm": "h [cm]", "failure_reason": "Motivo da falha", "failure_action": "Ação necessária", "warning_reason": "Motivo do aviso"})
+    from reportlab.lib.styles import ParagraphStyle
+    header_style = ParagraphStyle("RC25_Header", parent=style, fontName="Courier-Bold", textColor=__import__("reportlab.lib.colors", fromlist=["black"]).black)
+    data = [[Paragraph(_rc25_pdf_safe(labels.get(c, c)), header_style) for c in present]]
     for _, r in df.iterrows():
         cells = []
         for c in present:
@@ -340,8 +342,8 @@ def _write_pdf_rc25(self, path: str):
     table_style = TableStyle([
         ("GRID", (0,0), (-1,-1), 0.25, colors.HexColor("#D8DEE9")),
         ("VALIGN", (0,0), (-1,-1), "TOP"),
-        ("BACKGROUND", (0,0), (-1,0), colors.HexColor("#1F4E5F")),
-        ("TEXTCOLOR", (0,0), (-1,0), colors.white),
+        ("BACKGROUND", (0,0), (-1,0), colors.HexColor("#E5E7EB")),
+        ("TEXTCOLOR", (0,0), (-1,0), colors.black),
         ("FONTNAME", (0,0), (-1,0), "Courier-Bold"),
         ("FONTSIZE", (0,0), (-1,-1), 6.4),
         ("LEFTPADDING", (0,0), (-1,-1), 2.0),
