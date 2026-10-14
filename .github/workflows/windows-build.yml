@@ -1,0 +1,46 @@
+name: Windows portable build
+on:
+  workflow_dispatch:
+  push:
+    branches: [build/windows-portable]
+  pull_request:
+    paths:
+      - 'ColumnsEC2.spec'
+      - 'tools/windows_entry.py'
+      - '.github/workflows/windows-build.yml'
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt -r requirements-optional.txt pyinstaller "pandas>=2.0,<3.0"
+      - name: Check source runtime
+        run: python tools/smoke_test.py
+      - name: Build portable application
+        run: python -m PyInstaller --clean --noconfirm ColumnsEC2.spec
+      - name: Check packaged application
+        shell: pwsh
+        run: |
+          $receipt = Join-Path $env:RUNNER_TEMP 'columns-self-test.json'
+          $process = Start-Process -FilePath 'dist/ColumnsEC2/ColumnsEC2.exe' -ArgumentList @('--self-test', $receipt) -PassThru
+          if (-not $process.WaitForExit(120000)) { $process.Kill(); throw 'Packaged check timed out' }
+          if ($process.ExitCode -ne 0) { if (Test-Path $receipt) { Get-Content $receipt }; throw 'Packaged check failed' }
+          if (-not (Test-Path $receipt)) { throw 'Missing packaged check receipt' }
+          $result = Get-Content $receipt -Raw | ConvertFrom-Json
+          if ($result.status -ne 'ok') { throw 'Invalid packaged check receipt' }
+      - name: Add distribution documents
+        shell: pwsh
+        run: Copy-Item LICENSE, README.md dist/ColumnsEC2/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ColumnsEC2-Windows-x64-portable
+          path: dist/ColumnsEC2/
+          if-no-files-found: error

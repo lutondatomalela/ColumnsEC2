@@ -1,0 +1,28 @@
+name: Publish approved Windows v0.1.0
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/publish-v0.1.0.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download and verify approved binary
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh api repos/$GH_REPO/actions/artifacts/11887776322/zip > ColumnsEC2-v0.1.0-Windows-x64.zip
+          echo 'd62807b2291299c465a866d12a51759fdab7bdbd5524126079af52a6bef65688  ColumnsEC2-v0.1.0-Windows-x64.zip' | sha256sum --check
+          unzip -t ColumnsEC2-v0.1.0-Windows-x64.zip
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh release create v0.1.0 ColumnsEC2-v0.1.0-Windows-x64.zip --target ${{ github.sha }} --title 'ColumnsEC2 v0.1.0 — Windows x64' --notes-file docs/releases/v0.1.0.md

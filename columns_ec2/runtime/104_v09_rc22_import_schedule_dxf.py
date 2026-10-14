@@ -685,7 +685,7 @@ def write_columns_dxf_v22(path: str, df: pd.DataFrame, lang: str = LANG_PT):
     if sched is None or sched.empty:
         parts.append(_dxf_text(0, 0, "No results" if en else "Sem resultados", 50, "COLUMNS_TEXT"))
         parts.append("0\nENDSEC\n0\nEOF\n")
-        Path(path).write_text("".join(parts), encoding="utf-8")
+        Path(path).write_text("".join(ch if ord(ch) < 128 else "\\U+%04X" % ord(ch) for ch in "".join(parts)), encoding="ascii")
         return
     work = sched.copy()
     if "Prumada" not in work.columns:
@@ -715,7 +715,7 @@ def write_columns_dxf_v22(path: str, df: pd.DataFrame, lang: str = LANG_PT):
             oy0 = -li * row_h
             _rc22_draw_schedule_block(parts, work, prumadas, levels, ox0, oy0, lang, block_no, n_blocks)
     parts.append("0\nENDSEC\n0\nEOF\n")
-    Path(path).write_text("".join(parts), encoding="utf-8")
+    Path(path).write_text("".join(ch if ord(ch) < 128 else "\\U+%04X" % ord(ch) for ch in "".join(parts)), encoding="ascii")
 
 
 write_columns_dxf_v16 = write_columns_dxf_v22
@@ -835,7 +835,7 @@ def write_columns_dxf_v22(path: str, df: pd.DataFrame, lang: str = LANG_PT):
     if sched is None or sched.empty:
         parts.append(_dxf_text(0, 0, "No results" if en else "Sem resultados", 50, "COLUMNS_TEXT"))
         parts.append("0\nENDSEC\n0\nEOF\n")
-        Path(path).write_text("".join(parts), encoding="utf-8")
+        Path(path).write_text("".join(ch if ord(ch) < 128 else "\\U+%04X" % ord(ch) for ch in "".join(parts)), encoding="ascii")
         return
     work = sched.copy()
     if "Prumada" not in work.columns:
@@ -865,7 +865,7 @@ def write_columns_dxf_v22(path: str, df: pd.DataFrame, lang: str = LANG_PT):
             oy0 = -li * row_h
             _rc22_draw_schedule_block(parts, work, prumadas, levels, ox0, oy0, lang, block_no, n_blocks)
     parts.append("0\nENDSEC\n0\nEOF\n")
-    Path(path).write_text("".join(parts), encoding="utf-8")
+    Path(path).write_text("".join(ch if ord(ch) < 128 else "\\U+%04X" % ord(ch) for ch in "".join(parts)), encoding="ascii")
 
 write_columns_dxf_v16 = write_columns_dxf_v22
 write_columns_dxf_v65 = write_columns_dxf_v22

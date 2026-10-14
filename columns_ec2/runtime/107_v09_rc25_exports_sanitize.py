@@ -200,9 +200,8 @@ except Exception:
 
 def _rc25_pdf_safe(x) -> str:
     s = _rc25_clean_text(x, dash_for_empty=False)
-    # Built-in PDF fonts may render Ø as a plain zero in some viewers.
-    # Use explicit engineering text in the PDF; XLSX/DXF keep the original symbol.
-    s = s.replace("Ø", "phi")
+    # Keep the diameter symbol; use an ASCII name for eta in Courier.
+    s = s.replace("η", "eta")
     return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
 
@@ -215,9 +214,20 @@ def _rc25_pdf_table(df: pd.DataFrame, cols, style, table_style, max_rows=35, wid
     if not present:
         present = ["nota"]
         df = pd.DataFrame([{"nota": "Sem dados."}])
-    data = [[Paragraph(_rc25_pdf_safe(c), style) for c in present]]
-    for _, r in df.head(max_rows).iterrows():
-        data.append([Paragraph(_rc25_pdf_safe(r.get(c, "")), style) for c in present])
+    labels = {"member": "Barra", "case": "Combinação", "material": "Betão", "name": "Prumada", "story": "Piso", "estado_corte": "Corte", "estado_torcao": "Torção", "estado_els": "ELS", "decisao_tecnica": "Decisão técnica", "failure_warnings": "Avisos técnicos", "detailing_warnings": "Pormenorização", "service_status": "ELS", "utilizacao": "eta NMyMz"}
+    labels.update({"n_ed_kN": "NEd [kN]", "my_ed_kNm": "My,Ed [kNm]", "mz_ed_kNm": "Mz,Ed [kNm]", "as_req_mm2": "As,req [mm²]", "as_prov_mm2": "As,prov [mm²]", "lambda_y": "Esbelteza y [-]", "lambda_z": "Esbelteza z [-]", "second_order_y": "2.ª ordem y", "second_order_z": "2.ª ordem z", "service_combination": "Combinação ELS", "status": "Estado", "η_NMyMz": "Utilização [-]", "b_cm": "b [cm]", "h_cm": "h [cm]", "failure_reason": "Motivo da falha", "failure_action": "Ação necessária", "warning_reason": "Motivo do aviso"})
+    from reportlab.lib.styles import ParagraphStyle
+    header_style = ParagraphStyle("RC25_Header", parent=style, fontName="Courier-Bold", textColor=__import__("reportlab.lib.colors", fromlist=["black"]).black)
+    data = [[Paragraph(_rc25_pdf_safe(labels.get(c, c)), header_style) for c in present]]
+    for _, r in df.iterrows():
+        cells = []
+        for c in present:
+            value = r.get(c, "")
+            if isinstance(value, (int, float)) and c not in ("member", "case") or c in ("η_NMyMz", "utilizacao"):
+                try: value = f"{float(value):.3f}"
+                except (ValueError, TypeError): pass
+            cells.append(Paragraph(_rc25_pdf_safe(value), style))
+        data.append(cells)
     if widths is None:
         widths = [270 * mm / max(1, len(present))] * len(present)
     t = Table(data, colWidths=widths, repeatRows=1)
@@ -332,8 +342,8 @@ def _write_pdf_rc25(self, path: str):
     table_style = TableStyle([
         ("GRID", (0,0), (-1,-1), 0.25, colors.HexColor("#D8DEE9")),
         ("VALIGN", (0,0), (-1,-1), "TOP"),
-        ("BACKGROUND", (0,0), (-1,0), colors.HexColor("#1F4E5F")),
-        ("TEXTCOLOR", (0,0), (-1,0), colors.white),
+        ("BACKGROUND", (0,0), (-1,0), colors.HexColor("#E5E7EB")),
+        ("TEXTCOLOR", (0,0), (-1,0), colors.black),
         ("FONTNAME", (0,0), (-1,0), "Courier-Bold"),
         ("FONTSIZE", (0,0), (-1,-1), 6.4),
         ("LEFTPADDING", (0,0), (-1,-1), 2.0),
@@ -363,6 +373,9 @@ def _write_pdf_rc25(self, path: str):
     n_fail = count_status(summary, "Falha")
     perf = getattr(self, "_calculation_perf", {})
 
+    level = str(_rc25_getvar(self, "var_pdf_level", "Relatório técnico"))
+    full = "mem" in level.lower() or "complet" in level.lower()
+    technical = full or "técn" in level.lower() or "tecn" in level.lower()
     story = []
     story.append(Paragraph(f'<link href="{_RC25_REPO_URL}">ColumnsEC2 {APP_VERSION}</link>', styles["RC25_Title"]))
     story.append(Paragraph("Relatório técnico sintético - NP EN 1992-1-1:2010 + AC:2012 + A1:2019", styles["RC25_Subtitle"]))
@@ -389,13 +402,23 @@ def _write_pdf_rc25(self, path: str):
             fcols = ["Prumada", "Piso", "member", "case", "Secção [cm]", "η_NMyMz", "Estado", "decisao_tecnica"]
         story.append(_rc25_pdf_table(failures, fcols, styles["RC25_Cell"], table_style, max_rows=50))
 
-    if not warnings.empty:
+    if technical and not warnings.empty:
         story.append(Paragraph("3. Avisos principais", styles["RC25_Section"]))
         wcols = ["name", "story", "member", "case", "estado_corte", "estado_torcao", "estado_els", "warning_reason"]
         if "Prumada" in warnings.columns:
             wcols = ["Prumada", "Piso", "member", "case", "estado_corte", "estado_torcao", "estado_els", "decisao_tecnica"]
         story.append(_rc25_pdf_table(warnings, wcols, styles["RC25_Cell"], table_style, max_rows=50))
 
+    if technical:
+        story.append(PageBreak())
+        story.append(Paragraph("4. Verificações e avisos por tramo", styles["RC25_Section"]))
+        story.append(_rc25_pdf_table(summary, ["name", "story", "member", "case", "service_status", "failure_warnings", "detailing_warnings"], styles["RC25_Cell"], table_style))
+    if full:
+        story.append(PageBreak())
+        story.append(Paragraph("5. Esforços e armaduras por caso calculado", styles["RC25_Section"]))
+        story.append(_rc25_pdf_table(res, ["name", "member", "case", "n_ed_kN", "my_ed_kNm", "mz_ed_kNm", "as_req_mm2", "as_prov_mm2", "utilizacao", "status"], styles["RC25_Cell"], table_style))
+        story.append(Paragraph("6. Efeitos de segunda ordem e serviço", styles["RC25_Section"]))
+        story.append(_rc25_pdf_table(res, ["name", "member", "case", "lambda_y", "lambda_z", "second_order_y", "second_order_z", "service_combination", "service_status"], styles["RC25_Cell"], table_style))
     # Lightweight performance/notes block.
     story.append(Spacer(1, 4*mm))
     story.append(Paragraph("Nota: a memória completa, incluindo dados importados, casos governantes, ELS, esforço transverso, torção e superfície N-My-Mz, permanece no ficheiro XLSX.", styles["RC25_Small"]))

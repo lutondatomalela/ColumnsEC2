@@ -80,6 +80,10 @@ python -m pip install --upgrade structuralcodes shapely numpy
 
 ---
 
+## Windows executable
+
+Download the portable Windows x64 package from [Releases](https://github.com/lutondatomalela/ColumnsEC2/releases/tag/v0.1.0). Extract the complete ZIP and run `ColumnsEC2.exe`; keep the `_internal` folder next to it. Python is not required. See [release notes](docs/releases/v0.1.0.md) for the tested scope and engineering limitations.
+
 ## Installation
 
 Clone the repository:
