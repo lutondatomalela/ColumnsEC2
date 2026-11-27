@@ -44,9 +44,12 @@ def main():
             assert ws.decision_tree.item(first, 'values')[0] == 'P1'
             ws.decision_tree.selection_set(first)
             ws._details()
+            ws.show('export')
             with tempfile.TemporaryDirectory() as directory:
                 app._write_pdf(str(Path(directory) / 'report.pdf'))
                 assert (Path(directory) / 'report.pdf').read_bytes().startswith(b'%PDF')
+            ws._poll(schedule=False)
+            assert ws.group == 'export'
             app.var_cover.set('40')
             ws._poll(schedule=False)
             assert not ws._current_results()
