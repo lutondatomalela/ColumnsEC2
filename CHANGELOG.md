@@ -1,3 +1,7 @@
+# v0.2.0 — 2026-11-27
+
+Task-oriented desktop workspace, compact segment decisions, grouped settings, export freshness control, main-thread callback dispatch, and missing column-line label fix. Numerical design engine unchanged.
+
 # Changelog
 
 All notable development changes to ColumnsEC2 are summarised in this file.

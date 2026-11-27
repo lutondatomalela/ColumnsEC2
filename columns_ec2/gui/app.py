@@ -27,4 +27,6 @@ def create_app():
         hook(app)
     except Exception:
         pass
+    from .workspace import install_workspace
+    install_workspace(app)
     return app

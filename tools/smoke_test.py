@@ -32,7 +32,8 @@ def main() -> None:
     res = design_dataframe(prepared, DesignParameters(calc_mode="pre_dimensionamento", reduce_cases=False))
     assert len(res) == 1
     assert "status" in res.columns
-    print("ColumnsEC2 0.1 smoke test: OK")
+    from columns_ec2.app_info import APP_VERSION
+    print(f"ColumnsEC2 {APP_VERSION} smoke test: OK")
 
 
 if __name__ == "__main__":
