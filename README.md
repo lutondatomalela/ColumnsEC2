@@ -4,7 +4,7 @@
 
 The software imports column internal forces, preserves physical column segments, checks combined axial force and biaxial bending, proposes practical reinforcement arrangements, and exports calculation outputs to Excel, PDF and DXF formats.
 
-> Current development status: **v0.2.0**  
+> Current development status: **v0.2.1**  
 > ColumnsEC2 is under active validation and should be used with independent engineering review.
 
 ---
@@ -82,7 +82,7 @@ python -m pip install --upgrade structuralcodes shapely numpy
 
 ## Windows executable
 
-Download the portable Windows x64 package from [Releases](https://github.com/lutondatomalela/ColumnsEC2/releases/latest). Extract the complete ZIP and run `ColumnsEC2.exe`; keep the `_internal` folder next to it. Python is not required. See [release notes](docs/releases/v0.2.0.md) for the tested scope and engineering limitations.
+Download the portable Windows x64 package from [Releases](https://github.com/lutondatomalela/ColumnsEC2/releases/latest). Extract the complete ZIP and run `ColumnsEC2.exe`; keep the `_internal` folder next to it. Python is not required. See [release notes](docs/releases/v0.2.1.md) for the tested scope and engineering limitations.
 
 ## Installation
 

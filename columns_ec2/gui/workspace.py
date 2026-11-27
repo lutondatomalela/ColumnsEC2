@@ -76,7 +76,7 @@ class Workspace:
         app.bind('<Destroy>', self._destroy, add='+')
         app.minsize(1000, 650)
         app.geometry('1360x860')
-        app.title('ColumnsEC2 0.2.0 | Pilares de betão armado')
+        app.title('ColumnsEC2 0.2.1 | Pilares de betão armado')
         self.show('home')
         app.after(200, lambda: self.paned.sashpos(0, 205))
         self._poll()
@@ -415,7 +415,7 @@ class Workspace:
         return tuple((n, str(getattr(self.app, n).get())) for n in PARAMETERS if hasattr(self.app, n))
 
     def _import(self, command):
-        if self.busy or self._thread_running(): return
+        if self.busy or self._thread_running() or getattr(self.app, '_excel_export_busy', False): return
         command()
         self._poll(schedule=False)
         if len(self.app.df_clean): self.show('data', str(self.app.tab_input))
@@ -424,7 +424,7 @@ class Workspace:
         self._import(self.app.import_file)
 
     def calculate(self):
-        if self.busy or self._thread_running(): return
+        if self.busy or self._thread_running() or getattr(self.app, '_excel_export_busy', False): return
         if self.app.df_clean.empty:
             messagebox.showinfo('Dados de entrada', 'Importe uma tabela de esforços antes de calcular.', parent=self.app)
             self.show('data')
@@ -448,6 +448,7 @@ class Workspace:
 
     def _current_results(self):
         return (not self.app.df_results.empty and not self.busy
+                and not getattr(self.app, '_excel_export_busy', False)
                 and self.result_signature == self._signature()
                 and self.result_data_token == id(self.app.df_clean))
 
@@ -485,13 +486,14 @@ class Workspace:
             self.file_label.configure(text=name or ('Tabela importada' if len(data) else 'Nenhum ficheiro importado'))
             members = data['member'].nunique() if 'member' in data else 0
             self.count_label.configure(text=f'{len(data):,} registos  ·  {members} barras'.replace(',', ' ') if len(data) else 'Importe uma tabela para começar')
-        self.calc_button.state(['disabled'] if self.busy or data.empty else ['!disabled'])
-        self.import_button.state(['disabled'] if self.busy else ['!disabled'])
+        exporting = getattr(self.app, '_excel_export_busy', False)
+        self.calc_button.state(['disabled'] if self.busy or data.empty or exporting else ['!disabled'])
+        self.import_button.state(['disabled'] if self.busy or exporting else ['!disabled'])
         current = self._current_results()
         for b in self.export_buttons: b.state(['!disabled'] if current else ['disabled'])
-        hint = 'A calcular…' if self.busy else ('Resultados disponíveis para exportação.' if current else ('Dados ou hipóteses alterados. Volte a calcular.' if not results.empty else 'Calcule o projeto para disponibilizar as exportações.'))
+        hint = 'A gravar o Excel… Pode continuar a consultar os resultados.' if exporting else ('A calcular…' if self.busy else ('Resultados disponíveis para exportação.' if current else ('Dados ou hipóteses alterados. Volte a calcular.' if not results.empty else 'Calcule o projeto para disponibilizar as exportações.')))
         self.export_hint.configure(text=hint)
-        self.step_label.configure(text='A calcular…' if self.busy else ('Resultados atualizados' if current else ('Pronto para configurar' if not data.empty else 'A aguardar dados')))
+        self.step_label.configure(text='A exportar Excel…' if exporting else ('A calcular…' if self.busy else ('Resultados atualizados' if current else ('Pronto para configurar' if not data.empty else 'A aguardar dados'))))
         if schedule: self._after_id = self.app.after(500, self._poll)
 
     def _destroy(self, event):
