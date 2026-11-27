@@ -34,6 +34,7 @@ class Workspace:
     def __init__(self, app):
         self.app = app
         self.busy = False
+        self.awaiting_results = False
         self.result_token = None
         self.data_token = None
         self.run_signature = None
@@ -430,7 +431,9 @@ class Workspace:
             return
         self.run_signature = self._signature()
         self.run_data_token = id(self.app.df_clean)
+        previous_thread = getattr(self.app, 'analysis_thread', None)
         self.app.run_design()
+        self.awaiting_results = getattr(self.app, 'analysis_thread', None) is not previous_thread
         self._poll(schedule=False)
 
     def _thread_running(self):
@@ -449,18 +452,29 @@ class Workspace:
                 and self.result_data_token == id(self.app.df_clean))
 
     def _poll(self, schedule=True):
-        self.busy = self._thread_running()
+        running = self._thread_running()
+        self.busy = running or self.awaiting_results
         data = self.app.df_clean
         results = self.app.df_results
         token = id(results)
-        if not results.empty and token != self.result_token and not self.busy:
+        finished = (not running and (not self.awaiting_results or
+                    (self.app.progress_var.get() >= 99 and
+                     str(self.app.status_var.get()).startswith('Cálculo concluído'))))
+        if not results.empty and token != self.result_token and finished:
             self.result_token = token
-            self.result_signature = self.run_signature
-            self.result_data_token = getattr(self, 'run_data_token', None)
+            if self.awaiting_results:
+                self.result_signature = self.run_signature
+                self.result_data_token = getattr(self, 'run_data_token', None)
+                self.awaiting_results = False
+                self.busy = False
+                self.show('results')
             status = results.get('estado_global', results.get('status'))
             counts = status.value_counts().to_dict() if status is not None else {}
             self.overview.set(f'{len(results)} casos calculados  ·  {counts.get("OK", 0)} OK  ·  {counts.get("Aviso", 0)} avisos  ·  {counts.get("Falha", 0)} falhas')
-            self.show('results')
+        if self.awaiting_results and not running and str(self.app.status_var.get()).startswith('Falha na análise'):
+            self.awaiting_results = False
+            self.busy = False
+            self.result_signature = None
         summary_token = (id(self.app.df_summary), self.result_token)
         if not results.empty and not self.busy and summary_token != self.summary_token:
             self.summary_token = summary_token
