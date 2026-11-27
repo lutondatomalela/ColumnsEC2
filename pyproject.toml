@@ -1,8 +1,8 @@
 [project]
 name = "columns-ec2"
-version = "0.1.0"
+version = "0.2.0"
 description = "Reinforced concrete column analysis and design tool for EC2 workflows"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 
 [tool.setuptools.packages.find]
 where = ["."]

@@ -2,14 +2,15 @@ name: Windows portable build
 on:
   workflow_dispatch:
   push:
-    branches: [build/windows-portable]
+    branches: [main, interface/workspace-v0.2]
   pull_request:
     paths:
+      - 'columns_ec2/**'
+      - 'tools/**'
       - 'ColumnsEC2.spec'
-      - 'tools/windows_entry.py'
       - '.github/workflows/windows-build.yml'
 permissions:
-  contents: read
+  contents: write
 jobs:
   build:
     runs-on: windows-latest
@@ -24,6 +25,8 @@ jobs:
           python -m pip install -r requirements.txt -r requirements-optional.txt pyinstaller "pandas>=2.0,<3.0"
       - name: Check source runtime
         run: python tools/smoke_test.py
+      - name: Check desktop workflow
+        run: python tools/gui_smoke_test.py
       - name: Build portable application
         run: python -m PyInstaller --clean --noconfirm ColumnsEC2.spec
       - name: Check packaged application
@@ -44,3 +47,18 @@ jobs:
           name: ColumnsEC2-Windows-x64-portable
           path: dist/ColumnsEC2/
           if-no-files-found: error
+      - name: Publish versioned Windows distribution
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          $version = python -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])"
+          gh release view "v$version" *> $null
+          if ($LASTEXITCODE -eq 0) { exit 0 }
+          $archive = "ColumnsEC2-v$version-Windows-x64.zip"
+          Compress-Archive -Path dist/ColumnsEC2/* -DestinationPath $archive
+          (Get-FileHash $archive -Algorithm SHA256).Hash.ToLower() + "  $archive" | Set-Content "$archive.sha256"
+          gh release create "v$version" $archive "$archive.sha256" --target ${{ github.sha }} --title "ColumnsEC2 v$version — Windows x64" --notes-file "docs/releases/v$version.md"
+          if ($LASTEXITCODE -ne 0) { throw 'Release publication failed' }

@@ -4749,7 +4749,7 @@ def _update_report_v65(self):
         lines = [f"{APP_NAME} {APP_VERSION}\n", "Relatório interno — estados por módulo\n\n"]
         lines.append(f"Casos: {len(self.df_results)} | OK: {n_ok} | Avisos: {n_warn} | Falhas: {n_fail}\n\n")
         for _, r in source.head(100).iterrows():
-            lines.append(f"Prumada {r.get('prumada', r.get('name',''))} | Membro {r.get('member','')} | Caso {r.get('case','')}\n")
+            lines.append(f"Prumada {_v682_prumada_from_row(r)} | Membro {r.get('member','')} | Caso {r.get('case','')}\n")
             lines.append(f"  NEd={safe_float(r.get('n_ed_kN',0),0):.2f} kN | MyEd={safe_float(r.get('my_ed_kNm',0),0):.2f} kNm | MzEd={safe_float(r.get('mz_ed_kNm',0),0):.2f} kNm | η_NMyMz={safe_float(r.get('η_NMyMz', r.get('eta_NMyMz',0)),0):.3f}\n")
             lines.append(f"  Estados: global={r.get('estado_global','')} | resistente={r.get('estado_resistente','')} | corte={r.get('estado_corte','')} | torção={r.get('estado_torcao','')} | ELS={r.get('estado_els','')} | pormenorização={r.get('estado_pormenorizacao','')}\n")
             sol = r.get('solucao_completa', r.get('solucao',''))

@@ -45,7 +45,7 @@ def load_runtime(force_reload: bool = False) -> Dict[str, Any]:
         exec(code, ns)
     ns["__file__"] = str(runtime_dir / "loader.py")
     # Modular release identifier;
-    ns["APP_VERSION"] = "v0.1"
+    ns["APP_VERSION"] = "v0.2.0"
     _RUNTIME_CACHE = ns
     return ns
 
