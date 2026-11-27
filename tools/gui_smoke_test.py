@@ -3,7 +3,9 @@ from pathlib import Path
 import sys
 import tempfile
 import time
-from tkinter import messagebox
+import threading
+from tkinter import messagebox, filedialog
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import pandas as pd
@@ -20,6 +22,8 @@ def main():
     messagebox.showerror = lambda *a, **k: errors.append(str(a))
     messagebox.askyesno = lambda *a, **k: False
     ws = app.workspace
+    export_directory = tempfile.TemporaryDirectory()
+    export_patches = []
     deadline = time.monotonic() + 90
     data = pd.DataFrame([
         {'Member/Node/Case': f'1/{node}/101 (C)', 'FX (kN)': '500',
@@ -58,11 +62,46 @@ def main():
             ws.show('settings')
             app.update_idletasks()
             assert app.winfo_width() == 1000
-            completed.append(True)
+            app.var_cover.set('35')
+            check_async_export()
         except Exception as e:
             errors.append(repr(e))
-        finally:
             app.quit()
+
+    def check_async_export():
+        import columns_ec2.excel_export as exporter
+        original_write = exporter.write
+        gate = threading.Event()
+        pulse = []
+        output = Path(export_directory.name) / 'async.xlsx'
+        def gated_write(*args, **kwargs):
+            if not gate.wait(10): raise RuntimeError('The UI did not process its scheduled callback during export')
+            return original_write(*args, **kwargs)
+        export_patches.extend([patch.object(exporter, 'write', gated_write),
+                               patch.object(filedialog, 'asksaveasfilename', return_value=str(output))])
+        for patcher in export_patches: patcher.start()
+        app.export_excel()
+        assert app._excel_export_busy
+        ws._poll(schedule=False)
+        assert ws.calc_button.instate(['disabled'])
+        def heartbeat():
+            pulse.append(True)
+            gate.set()
+        app.after(100, heartbeat)
+        def done():
+            if time.monotonic() > deadline:
+                errors.append('Excel export timed out')
+                app.quit()
+            elif app._excel_export_busy:
+                app.after(50, done)
+            else:
+                try:
+                    assert pulse and output.exists()
+                    assert output.read_bytes().startswith(b'PK')
+                    completed.append(True)
+                except Exception as e: errors.append(repr(e))
+                app.quit()
+        app.after(50, done)
 
     def poll():
         if time.monotonic() > deadline:
@@ -85,6 +124,8 @@ def main():
         app.after(600, start)
         app.mainloop()
     finally:
+        for patcher in reversed(export_patches): patcher.stop()
+        export_directory.cleanup()
         for name, command in original_dialogs.items(): setattr(messagebox, name, command)
         app.destroy()
     assert completed and not errors, errors

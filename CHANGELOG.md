@@ -1,3 +1,7 @@
+# v0.2.1 — 2026-11-27
+
+Single-pass streaming Excel export with background saving, progress updates and atomic replacement. Retains all 22 sheet categories and numerical results.
+
 # v0.2.0 — 2026-11-27
 
 Task-oriented desktop workspace, compact segment decisions, grouped settings, export freshness control, main-thread callback dispatch, and missing column-line label fix. Numerical design engine unchanged.

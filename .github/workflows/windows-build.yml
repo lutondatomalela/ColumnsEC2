@@ -25,6 +25,8 @@ jobs:
           python -m pip install -r requirements.txt -r requirements-optional.txt pyinstaller "pandas>=2.0,<3.0"
       - name: Check source runtime
         run: python tools/smoke_test.py
+      - name: Check Excel export fidelity and atomicity
+        run: python tools/excel_smoke_test.py
       - name: Check desktop workflow
         run: python tools/gui_smoke_test.py
       - name: Build portable application

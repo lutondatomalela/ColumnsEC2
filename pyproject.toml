@@ -1,6 +1,6 @@
 [project]
 name = "columns-ec2"
-version = "0.2.0"
+version = "0.2.1"
 description = "Reinforced concrete column analysis and design tool for EC2 workflows"
 requires-python = ">=3.10"
 

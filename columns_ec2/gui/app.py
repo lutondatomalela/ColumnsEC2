@@ -27,6 +27,8 @@ def create_app():
         hook(app)
     except Exception:
         pass
+    from columns_ec2.excel_export import install_excel_export
+    install_excel_export(app)
     from .workspace import install_workspace
     install_workspace(app)
     return app
